@@ -1,4 +1,4 @@
-from .parsers import TestDocParser
+from .parsers import MultiParser, TestDocParser, TestNameParser
 from .robottestlinkhelper import RobotTestLinkHelper
 from robot.api import logger as robot_logger
 from testlink import TestlinkAPIGeneric
@@ -6,11 +6,11 @@ from testlink.testlinkerrors import TLResponseError
 from robot.libraries.BuiltIn import BuiltIn
 
 
-reportTCResultParams = [
+reportTCResult_PARAMS = [
     'testcaseid', 'testplanid', 'buildname', 'status', 'notes', 'testcaseexternalid', 'buildid', 'platformid',
     'platformname', 'guess', 'bugid', 'custumfields', 'overwrite', 'user', 'execduration', 'timestamp', 'steps',
     'devkey']
-robot_report_params = {str(param): 'testlink' + str(param) for param in reportTCResultParams}
+ROBOT_REPORT_PARAMS = {str(param): 'testlink' + str(param) for param in reportTCResult_PARAMS}
 
 
 def setdefault_if_not_none(di, key, val):
@@ -21,6 +21,7 @@ def setdefault_if_not_none(di, key, val):
 
 class testlinklistener(object):
     ROBOT_LISTENER_API_VERSION = 3
+    PARSERS = [TestDocParser, TestNameParser]
 
     def __init__(self, server_url=None, devkey=None, proxy=None, *report_kwargs):
         """
@@ -91,7 +92,7 @@ class testlinklistener(object):
         return self._testcases
 
     def _get_testcases(self, test):
-        return TestDocParser(self.test_prefix).get_testcases(test)
+        return MultiParser(*[parser(self.test_prefix) for parser in self.PARSERS]).get_testcases(test)
 
     def _get_testlink_status(self, test):
         # testlink accepts p/f for passed and failed
@@ -124,7 +125,7 @@ class ReportKwargs(dict):
         self._get_params_from_variables()
 
     def _get_params_from_variables(self):
-        for testlink_param, robot_variable in robot_report_params.items():
+        for testlink_param, robot_variable in ROBOT_REPORT_PARAMS.items():
             setdefault_if_truthy(self, testlink_param, BuiltIn().get_variable_value("${" + str(robot_variable) + "}"))
 
     def setup_testlink(self):

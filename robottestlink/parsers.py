@@ -2,12 +2,25 @@
 import re
 
 
-class ParserFactory(object):
-    def __init__(self, parsers):
-        """
+def get_input_as_list(input_):
+    if isinstance(input_, list):
+        return input_
+    else:
+        return [input_]
 
-        :param parsers: list of parsers
+
+class MultiParser(object):
+    def __init__(self, *parser_obj):
         """
+        :param parser_obj: Parser objects to search with
+        """
+        self.parsers = parser_obj
+
+    def get_testcases(self, test):
+        testcases = set()
+        for parser in self.parsers:
+            testcases |= parser.get_testcases(test)
+        return testcases
 
 
 class _TCExternalIDParser(object):
@@ -17,13 +30,9 @@ class _TCExternalIDParser(object):
 
         So if the full testcase external id was 'abc-123' the tcid_matcher would be 'abc'.
 
-        :param tcid_matcher: a tcid prefix to match or a list of tcid prefixes to match
+        :param tcid_matcher: list of atcid prefixes to match
         """
-
-        if isinstance(tcid_matcher, list):
-            self.tcid_matchers = tcid_matcher
-        else:
-            self.tcid_matchers = [tcid_matcher]
+        self.tcid_matchers = get_input_as_list(tcid_matcher)
 
     def _get_testcases(self, test, matcher):
         raise NotImplementedError
@@ -35,7 +44,7 @@ class _TCExternalIDParser(object):
         return testcases
 
 
-class TestDocParser(metaclass=_TCExternalIDParser):
+class TestDocParser(_TCExternalIDParser):
     """
     Find all externaltestcaseid's in a test's docstring.
 
