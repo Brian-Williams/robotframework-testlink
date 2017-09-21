@@ -1,10 +1,22 @@
-# THIS IS AN UNTESTED WIP. There is a lot of non-functional scaffolding and I'm working out ideas with a draft
-
-from .docparser import DocTestParser
+from .parsers import DocTestParser
 from .robottestlinkhelper import RobotTestLinkHelper
 from robot.api import logger as robot_logger
 from testlink import TestlinkAPIGeneric
 from testlink.testlinkerrors import TLResponseError
+from robot.libraries.BuiltIn import BuiltIn
+
+
+reportTCResultParams = [
+    'testcaseid', 'testplanid', 'buildname', 'status', 'notes', 'testcaseexternalid', 'buildid', 'platformid',
+    'platformname', 'guess', 'bugid', 'custumfields', 'overwrite', 'user', 'execduration', 'timestamp', 'steps',
+    'devkey']
+robot_report_params = {str(param): 'testlink' + str(param) for param in reportTCResultParams}
+
+
+def setdefault_if_not_none(di, key, val):
+    if key not in di:
+        if val is not None:
+            di[key] = val
 
 
 class testlinklistener(object):
@@ -24,7 +36,7 @@ class testlinklistener(object):
               dev_key is *not* put into report_kwargs. This is by design.
 
         Since kwargs are not supported in listeners you must pass in args with an equal sign between the key and the
-        value (<argument>=<value).
+        value (<argument>=<value). Arguments or values with equal signs in them are not supported.
 
         :param server_url: The testlink server
         :param devkey: API key of the user running the tests
