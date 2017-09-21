@@ -46,13 +46,19 @@ class RobotTestLinkHelper(TestLinkHelper):
         if not self._proxy:
             self._proxy = self._get_param_from_robot('testlinkproxy')
 
-    def _setParams(self):
-        """fill slots _server_url, _devkey and _proxy
-        Priority:
-        1. init args
-        2. robot variables
-        2. environment variables
-        3. default values
-        """
-        self._setParamsFromRobot()
-        super(RobotTestLinkHelper, self)._setParams()
+    # Remove this and use commented below override when pull #24 goes through
+    def _setParamsFromEnv(self):
+        self._setParamsFromRobot(),
+        super(RobotTestLinkHelper, self)._setParamsFromEnv()
+    
+    # This is dependant on https://github.com/orenault/TestLink-API-Python-client/pull/24
+    # def _setParams(self):
+    #     """fill slots _server_url, _devkey and _proxy
+    #     Priority:
+    #     1. init args
+    #     2. robot variables
+    #     2. environment variables
+    #     3. default values
+    #     """
+    #     self._setParamsFromRobot()
+    #     super(RobotTestLinkHelper, self)._setParams()
