@@ -1,22 +1,45 @@
+"""Parsers that search for tests from a robot test or suite. They return a set of testcases"""
 import re
 
 
-class DocTestParser(object):
-    """Find all externaltestcaseid's in a test's docstring.
+class ParserFactory(object):
+    pass
 
-    If your externaltestcaseid prefix is abc and the test has 'abc-123' in it's docstring.
-    `DocTestParser('abc').get_testcases(test)` would return `['abc-123']`.
-    """
-    def __init__(self, doc_matcher=None, doc_matchers=None):
+
+class _TCExternalIDParser(object):
+    def __init__(self, tcid_matcher=None, tcid_matchers=None):
         """
-        :param doc_matchers: List of regex to find in docstring
+        TCID (testcase id's) in this class refer to testcase external id prepends.
+
+        So if the full testcase external id was 'abc-123' the tcid_matcher would be 'abc'.
+
+        :param tcid_matcher: a tcid prefix to match.
+        :param tcid_matchers: a list of tcid prefixes to match.
         """
-        self.doc_matchers = doc_matchers if doc_matchers is not None else []
-        if doc_matcher:
-            self.doc_matchers.append(doc_matcher)
+        self.tcid_matchers = tcid_matchers if tcid_matchers is not None else []
+        if tcid_matcher:
+            self.tcid_matchers.append(tcid_matcher)
+
+    def _get_testcases(self, test, matcher):
+        raise NotImplementedError
 
     def get_testcases(self, test):
         testcases = set()
-        for matcher in self.doc_matchers:
-            testcases |= set(re.findall('{}-\d+'.format(matcher), test.doc))
+        for matcher in self.tcid_matchers:
+            testcases |= set(self._get_testcases(test, matcher))
         return testcases
+
+
+class TestDocParser(metaclass=_TCExternalIDParser):
+    """Find all externaltestcaseid's in a test's docstring.
+
+    If your externaltestcaseid prefix is abc and the test has 'abc-123' in it's docstring.
+    `TestDocParser('abc').get_testcases(test)` would return `['abc-123']`.
+    """
+    def _get_testcases(self, test, matcher):
+        return re.findall('{}-\d+'.format(matcher), test.doc)
+
+
+class TestNameParser(_TCExternalIDParser):
+    def _get_testcases(self, test, matcher):
+        return re.findall('{}-\d+'.format(matcher), test.name)

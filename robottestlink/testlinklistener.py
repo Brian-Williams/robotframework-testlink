@@ -1,4 +1,4 @@
-from .parsers import DocTestParser
+from .parsers import TestDocParser
 from .robottestlinkhelper import RobotTestLinkHelper
 from robot.api import logger as robot_logger
 from testlink import TestlinkAPIGeneric
@@ -91,7 +91,7 @@ class testlinklistener(object):
         return self._testcases
 
     def _get_testcases(self, test):
-        return DocTestParser(self.test_prefix).get_testcases(test)
+        return TestDocParser(self.test_prefix).get_testcases(test)
 
     def _get_testlink_status(self, test):
         # testlink accepts p/f for passed and failed
