@@ -3,22 +3,27 @@ import re
 
 
 class ParserFactory(object):
-    pass
+    def __init__(self, parsers):
+        """
+
+        :param parsers: list of parsers
+        """
 
 
 class _TCExternalIDParser(object):
-    def __init__(self, tcid_matcher=None, tcid_matchers=None):
+    def __init__(self, tcid_matcher=None):
         """
         TCID (testcase id's) in this class refer to testcase external id prepends.
 
         So if the full testcase external id was 'abc-123' the tcid_matcher would be 'abc'.
 
-        :param tcid_matcher: a tcid prefix to match.
-        :param tcid_matchers: a list of tcid prefixes to match.
+        :param tcid_matcher: a tcid prefix to match or a list of tcid prefixes to match
         """
-        self.tcid_matchers = tcid_matchers if tcid_matchers is not None else []
-        if tcid_matcher:
-            self.tcid_matchers.append(tcid_matcher)
+
+        if isinstance(tcid_matcher, list):
+            self.tcid_matchers = tcid_matcher
+        else:
+            self.tcid_matchers = [tcid_matcher]
 
     def _get_testcases(self, test, matcher):
         raise NotImplementedError
