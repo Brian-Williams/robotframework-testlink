@@ -10,7 +10,7 @@ from testlink.testlinkerrors import TLResponseError
 class testlinklistener(object):
     ROBOT_LISTENER_API_VERSION = 3
 
-    def __init__(self, server_url=None, devkey=None, proxy=None, test_prefix=None, *report_kwargs, **also_console):
+    def __init__(self, server_url=None, devkey=None, proxy=None, *report_kwargs):
         """
         This is specifically for looking at testcaseexternalids in testcase documentation and sending results to all
         testcases found.
@@ -29,14 +29,14 @@ class testlinklistener(object):
         :param server_url: The testlink server
         :param devkey: API key of the user running the tests
         :param proxy: Testlink proxy
-        :param test_prefix: The letters preceding testlink numbers. ex. abc-1234 the test_prefix would be 'abc'
-        :param report_kwargs: These are args in the format `<argument>=<value>`.
-        :param also_console: py2 support for non-positional kwargs. pass in also_console=<bool>. Defaults to True.
+        :param report_kwargs: These are args in the format `<argument>=<value>`. These values are assumed parameters
+                              for reportTCResults with the following special cases:
+            - also_console: Whether to log the reportTCResults response to console; boolean, deafults to True
+            - test_prefix: The letters preceding testlink numbers. ex. abc-1234 the test_prefix would be 'abc'
         """
         self.server = server_url
         self.devkey = devkey
         self.proxy = proxy
-        self.test_prefix = test_prefix
 
         # Listeners don't support real kwargs
         self.report_kwargs = {}
@@ -49,7 +49,8 @@ class testlinklistener(object):
                 raise RuntimeError("Report kwarg was passed in with multiple equal signs. '{}'".format(kwarg))
             self.report_kwargs[arg] = value
 
-        self.also_console = also_console.get('also_console', True)
+        self.also_console = self.report_kwargs.pop('also_console', True)
+        self.test_prefix = self.report_kwargs.pop('test_prefix', None)
 
         self._tlh = self._tls = self._testcases = None
 
