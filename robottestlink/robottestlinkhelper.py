@@ -2,11 +2,11 @@ from testlink import TestLinkHelper
 from robot.libraries.BuiltIn import BuiltIn
 
 
-report_TC_result_params = [
+reportTCResult_PARAMS = [
     'testcaseid', 'testplanid', 'buildname', 'status', 'notes', 'testcaseexternalid', 'buildid', 'platformid',
     'platformname', 'guess', 'bugid', 'custumfields', 'overwrite', 'user', 'execduration', 'timestamp', 'steps',
     'devkey']
-robot_report_params = {str(param): 'testlink' + str(param) for param in report_TC_result_params}
+ROBOT_REPORT_PARAMS = {str(param): 'testlink' + str(param) for param in reportTCResult_PARAMS}
 
 
 def setdefault_if_not_none(di, key, val):
@@ -28,7 +28,7 @@ class RobotTestLinkHelper(TestLinkHelper):
         return BuiltIn().get_variable_value("${" + str(robot_variable) + "}")
 
     def _get_missing_params_from_robot_variables(self, param_dict):
-        for testlink_param, robot_variable in robot_report_params.items():
+        for testlink_param, robot_variable in ROBOT_REPORT_PARAMS.items():
             setdefault_if_not_none(param_dict, testlink_param, self._get_param_from_robot(robot_variable))
 
     def _setParamsFromRobot(self):

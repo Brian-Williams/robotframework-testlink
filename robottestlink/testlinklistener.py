@@ -1,22 +1,9 @@
 from .parsers import MultiParser, TestDocParser, TestNameParser
-from .robottestlinkhelper import RobotTestLinkHelper
+from .robottestlinkhelper import RobotTestLinkHelper, reportTCResult_PARAMS, ROBOT_REPORT_PARAMS, setdefault_if_not_none
 from robot.api import logger as robot_logger
 from testlink import TestlinkAPIGeneric
 from testlink.testlinkerrors import TLResponseError
 from robot.libraries.BuiltIn import BuiltIn
-
-
-reportTCResult_PARAMS = [
-    'testcaseid', 'testplanid', 'buildname', 'status', 'notes', 'testcaseexternalid', 'buildid', 'platformid',
-    'platformname', 'guess', 'bugid', 'custumfields', 'overwrite', 'user', 'execduration', 'timestamp', 'steps',
-    'devkey']
-ROBOT_REPORT_PARAMS = {str(param): 'testlink' + str(param) for param in reportTCResult_PARAMS}
-
-
-def setdefault_if_not_none(di, key, val):
-    if key not in di:
-        if val is not None:
-            di[key] = val
 
 
 class testlinklistener(object):
