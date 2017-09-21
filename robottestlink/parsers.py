@@ -31,7 +31,8 @@ class _TCExternalIDParser(object):
 
 
 class TestDocParser(metaclass=_TCExternalIDParser):
-    """Find all externaltestcaseid's in a test's docstring.
+    """
+    Find all externaltestcaseid's in a test's docstring.
 
     If your externaltestcaseid prefix is abc and the test has 'abc-123' in it's docstring.
     `TestDocParser('abc').get_testcases(test)` would return `['abc-123']`.

@@ -16,7 +16,8 @@ def setdefault_if_not_none(di, key, val):
 
 
 class RobotTestLinkHelper(TestLinkHelper):
-    """We preface all testlink inputs with 'testlink'.
+    """
+    We preface all testlink inputs with 'testlink'.
 
     So, to pass the serverurl as a variable in a robot test set the variable ${testlinkserverurl}.
 
