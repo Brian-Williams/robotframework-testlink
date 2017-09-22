@@ -1,5 +1,6 @@
 from .parsers import MultiParser, TestDocParser, TestNameParser
-from .robottestlinkhelper import RobotTestLinkHelper, reportTCResult_PARAMS, ROBOT_REPORT_PARAMS, setdefault_if_not_none
+from .robottestlinkhelper import RobotTestLinkHelper
+from robottestlink.utils import update_missing_params_from_robot_variables
 from robot.api import logger as robot_logger
 from testlink import TestlinkAPIGeneric
 from .test_report_helper import TestReportHelper
@@ -88,6 +89,7 @@ class testlinklistener(object):
         return status
 
     def _get_kwargs(self):
+        update_missing_params_from_robot_variables(self.report_kwargs)
         return TestReportHelper(self.tls, self.testcases, **self.report_kwargs)
 
     def end_test(self, data, test):

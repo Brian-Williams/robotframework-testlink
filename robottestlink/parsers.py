@@ -1,12 +1,6 @@
 """Parsers that search for tests from a robot test or suite. They return a set of testcases"""
 import re
-
-
-def get_input_as_list(input_):
-    if isinstance(input_, list):
-        return input_
-    else:
-        return [input_]
+from .utils import get_input_as_list
 
 
 class MultiParser(object):

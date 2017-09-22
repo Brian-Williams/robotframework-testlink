@@ -1,6 +1,4 @@
-from .robottestlinkhelper import setdefault_if_not_none, ROBOT_REPORT_PARAMS
 from testlink.testlinkerrors import TLResponseError
-from robot.libraries.BuiltIn import BuiltIn
 
 
 class TestReportHelper(dict):
@@ -9,11 +7,6 @@ class TestReportHelper(dict):
         self.tls = tls
         self.testcases = testcases
         self._testplanname = self._testprojectid = self._testplanid = self._plan_testcases = None
-        self._get_params_from_variables()
-
-    def _get_params_from_variables(self):
-        for testlink_param, robot_variable in ROBOT_REPORT_PARAMS.items():
-            setdefault_if_not_none(self, testlink_param, BuiltIn().get_variable_value("${" + str(robot_variable) + "}"))
 
     def setup_testlink(self):
         self.ensure_testcases_in_plan()

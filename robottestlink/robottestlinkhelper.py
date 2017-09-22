@@ -1,18 +1,5 @@
+from robottestlink.utils import get_param_from_robot
 from testlink import TestLinkHelper
-from robot.libraries.BuiltIn import BuiltIn
-
-
-reportTCResult_PARAMS = [
-    'testcaseid', 'testplanid', 'buildname', 'status', 'notes', 'testcaseexternalid', 'buildid', 'platformid',
-    'platformname', 'guess', 'bugid', 'custumfields', 'overwrite', 'user', 'execduration', 'timestamp', 'steps',
-    'devkey']
-ROBOT_REPORT_PARAMS = {str(param): 'testlink' + str(param) for param in reportTCResult_PARAMS}
-
-
-def setdefault_if_not_none(di, key, val):
-    if key not in di:
-        if val is not None:
-            di[key] = val
 
 
 class RobotTestLinkHelper(TestLinkHelper):
@@ -23,13 +10,6 @@ class RobotTestLinkHelper(TestLinkHelper):
 
     This is to avoid polluting the robot framework variable namespace with common variable names.
     """
-    def _get_param_from_robot(self, robot_variable):
-        """Returns the found robot variable, defaults to None."""
-        return BuiltIn().get_variable_value("${" + str(robot_variable) + "}")
-
-    def _get_missing_params_from_robot_variables(self, param_dict):
-        for testlink_param, robot_variable in ROBOT_REPORT_PARAMS.items():
-            setdefault_if_not_none(param_dict, testlink_param, self._get_param_from_robot(robot_variable))
 
     def _setParamsFromRobot(self):
         """
@@ -41,11 +21,11 @@ class RobotTestLinkHelper(TestLinkHelper):
         If robot variables are not defined, values are kept as None for other _setParams* to handle.
         """
         if self._server_url is None:
-            self._server_url = self._get_param_from_robot('testlinkserverurl')
+            self._server_url = get_param_from_robot('testlinkserverurl')
         if self._devkey is None:
-            self._devkey = self._get_param_from_robot('testlinkdevkey')
+            self._devkey = get_param_from_robot('testlinkdevkey')
         if not self._proxy:
-            self._proxy = self._get_param_from_robot('testlinkproxy')
+            self._proxy = get_param_from_robot('testlinkproxy')
 
     # Remove this and use commented below override when pull #24 goes through
     def _setParamsFromEnv(self):
