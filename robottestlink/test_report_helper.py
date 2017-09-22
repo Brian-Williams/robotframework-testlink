@@ -1,12 +1,50 @@
 from testlink.testlinkerrors import TLResponseError
 
 
-class TestReportHelper(dict):
+class TestReport(dict):
     def __init__(self, tls, testcases=None, *args, **kwargs):
-        super(TestReportHelper, self).__init__(*args, **kwargs)
+        """This can be given one or more testcases, but they all must have the same project, plan, and platform."""
+        super(TestReport, self).__init__(*args, **kwargs)
         self.tls = tls
         self.testcases = testcases
-        self._testplanname = self._testprojectid = self._testplanid = self._plan_testcases = None
+        self._plan_testcases = None
+
+    @property
+    def testprojectname(self):
+        return self.get('testprojectname')
+
+    @property
+    def testprojectid(self):
+        return self.get('testprojectid')
+
+    @property
+    def testplanid(self):
+        return self.get('testplanid')
+
+    @property
+    def platformname(self):
+        """Return a platformname added to the testplan if there is one."""
+        return self.get('platformname')
+
+    @property
+    def platformid(self):
+        return self.get('platformid')
+
+    @property
+    def plan_tcids(self):
+        if not self._plan_testcases:
+            self._plan_testcases = set()
+            tc_dict = self.tls.getTestCasesForTestPlan(self.testplanid)
+            for _, platform in tc_dict.items():
+                for k, v in platform.items():
+                    self._plan_testcases.add(v['full_external_id'])
+        return self._plan_testcases
+
+
+class TestReportGenerator(TestReport):
+    def __init__(self, tls, testcases=None, *args, **kwargs):
+        super(TestReportGenerator, self).__init__(tls, testcases, *args, **kwargs)
+        self._testplanname = self._testprojectid = self._testplanid = None
 
     def setup_testlink(self):
         self.ensure_testcases_in_plan()
