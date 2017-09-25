@@ -1,8 +1,9 @@
-from .parsers import MultiParser, TestDocParser, TestNameParser
-from .robottestlinkhelper import RobotTestLinkHelper
-from robottestlink.utils import update_missing_params_from_robot_variables
 from robot.api import logger as robot_logger
 from testlink import TestlinkAPIGeneric
+
+from robottestlink.utils import update_missing_params_from_robot_variables
+from .parsers import MultiParser, TestDocParser, TestNameParser
+from .robottestlinkhelper import RobotTestLinkHelper
 from .test_reporter import TestGenerateReporter
 
 
