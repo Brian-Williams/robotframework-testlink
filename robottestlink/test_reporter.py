@@ -1,20 +1,43 @@
 from testlink.testlinkerrors import TLResponseError
 
 
-class TestReport(dict):
+class TestReporter(dict):
     def __init__(self, tls, testcases=None, *args, **kwargs):
         """This can be given one or more testcases, but they all must have the same project, plan, and platform."""
-        super(TestReport, self).__init__(*args, **kwargs)
+        super(TestReporter, self).__init__(*args, **kwargs)
         self.tls = tls
         self.testcases = testcases
         self._plan_testcases = None
 
-    @property
-    def testprojectname(self):
+    def _get_project_name_by_id(self):
+        if self.testprojectid:
+            for project in self.tls.getProjects():
+                if project['id'] == self.testprojectid:
+                    return project['name']
+
+    def _projectname_getter(self):
+        if not self.get('testprojectname') and self.testprojectid:
+            self['testprojectname'] = self._get_project_name_by_id()
         return self.get('testprojectname')
 
     @property
+    def testprojectname(self):
+        return self._projectname_getter()
+
+    def _get_project_id(self):
+        if not self.get('testprojectid') and self.testprojectname:
+            return self.tls.getProjectIDByName(self['testprojectname'])
+
+    def _get_project_id_or_none(self):
+        project_id = self._get_project_id()
+        # If not found the id will return as -1
+        if project_id == -1:
+            project_id = None
+        return project_id
+
+    @property
     def testprojectid(self):
+        self['testprojectid'] = self._get_project_id_or_none()
         return self.get('testprojectid')
 
     @property
@@ -41,9 +64,9 @@ class TestReport(dict):
         return self._plan_testcases
 
 
-class TestReportGenerator(TestReport):
+class TestGenerateReporter(TestReporter):
     def __init__(self, tls, testcases=None, *args, **kwargs):
-        super(TestReportGenerator, self).__init__(tls, testcases, *args, **kwargs)
+        super(TestGenerateReporter, self).__init__(tls, testcases, *args, **kwargs)
         self._testplanname = self._testprojectid = self._testplanid = None
 
     def setup_testlink(self):
@@ -57,25 +80,7 @@ class TestReportGenerator(TestReport):
                     platformid=self.platformid
                 )
 
-    @property
-    def testprojectname(self):
-        if not self.get('testprojectname'):
-            try:
-                self['testprojectname'] = self.tls.getProjectIDByName(self['testprojectid'])
-            except IndexError:
-                raise RuntimeError('Need a testprojectname or id to generate other testlink arguments.')
-        return self['testprojectname']
-
-    @property
-    def testprojectid(self):
-        if not self.get('testprojectid'):
-            try:
-                self['testprojectid'] = self.tls.getTestProjectByName(self.testprojectname)['id']
-            except TypeError:
-                # TODO: Should we generate a testproject?
-                raise
-
-        return self['testprojectid']
+    # testprojectname/testprojectid generating aren't supported
 
     @property
     def testplanid(self):

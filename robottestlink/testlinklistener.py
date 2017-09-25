@@ -3,7 +3,7 @@ from .robottestlinkhelper import RobotTestLinkHelper
 from robottestlink.utils import update_missing_params_from_robot_variables
 from robot.api import logger as robot_logger
 from testlink import TestlinkAPIGeneric
-from .test_report_helper import TestReportGenerator
+from .test_reporter import TestGenerateReporter
 
 
 class testlinklistener(object):
@@ -90,7 +90,7 @@ class testlinklistener(object):
 
     def _get_kwargs(self):
         update_missing_params_from_robot_variables(self.report_kwargs)
-        return TestReportGenerator(self.tls, self.testcases, **self.report_kwargs)
+        return TestGenerateReporter(self.tls, self.testcases, **self.report_kwargs)
 
     def end_test(self, data, test):
         rkwargs = self._get_kwargs()
