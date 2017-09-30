@@ -1,10 +1,12 @@
 from robot.api import logger as robot_logger
-from testlink import TestlinkAPIGeneric
-
+from testlink import TestlinkAPIClient
+from testlink.testreporter import TestGenReporter
 from robottestlink.utils import update_missing_params_from_robot_variables
 from .parsers import MultiParser, TestDocParser, TestNameParser
 from .robottestlinkhelper import RobotTestLinkHelper
-from .test_reporter import TestGenerateReporter
+
+import ssl
+ssl._create_default_https_context = ssl._create_unverified_context
 
 
 class testlinklistener(object):
@@ -36,8 +38,9 @@ class testlinklistener(object):
             - test_prefix: The letters preceding testlink numbers. ex. abc-1234 the test_prefix would be 'abc'
         """
         self.server = server_url
-        self.devkey = devkey
-        self.proxy = proxy
+        # Allow for string None for CLI input
+        self.devkey = devkey if devkey != 'None' else None
+        self.proxy = proxy if proxy != 'None' else None
 
         # Listeners don't support real kwargs
         self.report_kwargs = {}
@@ -53,7 +56,7 @@ class testlinklistener(object):
         self.also_console = self.report_kwargs.pop('also_console', True)
         self.test_prefix = self.report_kwargs.pop('test_prefix', None)
 
-        self._tlh = self._tls = self._testcases = None
+        self._tlh = self._tls = None
 
     @property
     def tlh(self):
@@ -67,17 +70,8 @@ class testlinklistener(object):
     @property
     def tls(self):
         if not self._tls:
-            self.connect_testlink()
+            self._tls = self.tlh.connect(TestlinkAPIClient)
         return self._tls
-
-    def connect_testlink(self):
-        self._tls = self.tlh.connect(TestlinkAPIGeneric)
-
-    @property
-    def testcases(self):
-        if not self._testcases:
-            self._testcases = self._get_testcases()
-        return self._testcases
 
     def _get_testcases(self, test):
         return MultiParser(*[parser(self.test_prefix) for parser in self.PARSERS]).get_testcases(test)
@@ -89,17 +83,20 @@ class testlinklistener(object):
             status = 'p'
         return status
 
-    def _get_kwargs(self):
+    def _get_robot_values(self, test):
         update_missing_params_from_robot_variables(self.report_kwargs)
-        return TestGenerateReporter(self.tls, self.testcases, **self.report_kwargs)
+        self.report_kwargs['status'] = self._get_testlink_status(test)
+        return self._get_testcases(test)
+
+    def _get_reporter(self, test):
+        """Update kwargs and get TestReporter"""
+        testcases = self._get_robot_values(test)
+        return TestGenReporter(self.tls, testcases, **self.report_kwargs)
 
     def end_test(self, data, test):
-        rkwargs = self._get_kwargs()
-        rkwargs['status'] = self._get_testlink_status(test)
+        reporter = self._get_reporter(test)
         # This is supposed to default to true by the API spec, but doesn't on some testlink versions
-        rkwargs.setdefault('guess', True)
-
-        for testcase in self.testcases:
-            resp = self.tls.reportTCResult(testcaseexternalid=testcase, **rkwargs)
+        # rkwargs.setdefault('guess', True)
+        for result in reporter.reportgen():
             # Listeners don't show up in the log so setting also_console to False effectively means don't log
-            robot_logger.info(resp, also_console=self.also_console)
+            robot_logger.info(result, also_console=self.also_console)

@@ -102,3 +102,8 @@ ENV/
 *.iml
 out
 gen
+
+# Robot artifacts
+log.html
+output.xml
+report.html
