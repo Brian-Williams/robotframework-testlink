@@ -5,10 +5,6 @@ from robottestlink.utils import update_missing_params_from_robot_variables
 from .parsers import MultiParser, TestDocParser, TestNameParser
 from .robottestlinkhelper import RobotTestLinkHelper
 
-# TODO: remove
-import ssl
-ssl._create_default_https_context = ssl._create_unverified_context
-
 
 class testlinklistener(object):
     ROBOT_LISTENER_API_VERSION = 3
