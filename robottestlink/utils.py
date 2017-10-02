@@ -12,7 +12,8 @@ reportTCResult_PARAMS = [
     'testcaseid', 'testplanid', 'buildname', 'status', 'notes', 'testcaseexternalid', 'buildid', 'platformid',
     'platformname', 'guess', 'bugid', 'custumfields', 'overwrite', 'user', 'execduration', 'timestamp', 'steps',
     'devkey']
-ROBOT_REPORT_PARAMS = {str(param): 'testlink' + str(param) for param in reportTCResult_PARAMS}
+ADDITIONAL_PARAMS = ['testplanname']
+ROBOT_REPORT_PARAMS = {str(param): 'testlink' + str(param) for param in reportTCResult_PARAMS + ADDITIONAL_PARAMS}
 
 
 def setdefault_if_not_none(di, key, val):

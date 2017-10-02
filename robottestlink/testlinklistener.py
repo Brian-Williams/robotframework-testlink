@@ -5,6 +5,7 @@ from robottestlink.utils import update_missing_params_from_robot_variables
 from .parsers import MultiParser, TestDocParser, TestNameParser
 from .robottestlinkhelper import RobotTestLinkHelper
 
+# TODO: remove
 import ssl
 ssl._create_default_https_context = ssl._create_unverified_context
 
@@ -74,7 +75,8 @@ class testlinklistener(object):
         return self._tls
 
     def _get_testcases(self, test):
-        return MultiParser(*[parser(self.test_prefix) for parser in self.PARSERS]).get_testcases(test)
+        # Needs to be a list to marshal
+        return list(MultiParser(*[parser(self.test_prefix) for parser in self.PARSERS]).get_testcases(test))
 
     def _get_testlink_status(self, test):
         # testlink accepts p/f for passed and failed
