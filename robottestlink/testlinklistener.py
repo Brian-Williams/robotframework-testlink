@@ -12,19 +12,19 @@ class testlinklistener(object):
 
     def __init__(self, server_url=None, devkey=None, proxy=None, *report_kwargs):
         """
-        This is specifically for looking at testcaseexternalids in testcase documentation and sending results to all
+        This is for looking at testcaseexternalids in testcase names and/or documentation and sending results to
         testcases found.
 
-        If you would like to set a default input from the test itself you can add 'testlink' to the beginning of the
-        parameter and it will select and add if it wasn't passed in at __init__.
-        For example if you wanted to pass in the platformname you would set testlinkplatformname. This is to avoid
-        robot name collisions with incredibly common variable names like user and timestamp.
+        If you would like to set a default input from the test itself you can set the testlink variable prepended with
+        'testlink' it will be used as a default.
+        For example if you wanted to pass in the platformname you would set ${testlinkplatformname}. The testlink
+        prepend is to avoid robot variable name collisions with incredibly common variable names. e.g. user
         Note: dev_key is set during testlink connection and used as a default by the testlink library.
-              So, if `testlinkdevkey` is passed in it will effectively take priority as the second positional arg
-              dev_key is *not* put into report_kwargs. This is by design.
+              So, if `testlinkdevkey` is passed in it will be sent with every report and will therefore overwrite the
+              dev_key passed to the library.
 
         Since kwargs are not supported in listeners you must pass in args with an equal sign between the key and the
-        value (<argument>=<value). Arguments or values with equal signs in them are not supported.
+        value (<argument>=<value). Values with equal signs in them are not supported.
 
         :param server_url: The testlink server
         :param devkey: API key of the user running the tests
@@ -32,7 +32,8 @@ class testlinklistener(object):
         :param report_kwargs: These are args in the format `<argument>=<value>`. These values are assumed parameters
                               for reportTCResults with the following special cases:
             - also_console: Whether to log the reportTCResults response to console; boolean, deafults to True
-            - test_prefix: The letters preceding testlink numbers. ex. abc-1234 the test_prefix would be 'abc'
+            - test_prefix: The letters preceding testlink numbers. ex. abc-1234 the test_prefix would be 'abc',
+                           defaults to regex `\w+`
         """
         self.server = server_url
         # Allow for string None for CLI input
@@ -51,7 +52,7 @@ class testlinklistener(object):
             self.report_kwargs[arg] = value
 
         self.also_console = self.report_kwargs.pop('also_console', True)
-        self.test_prefix = self.report_kwargs.pop('test_prefix', None)
+        self.test_prefix = self.report_kwargs.pop('test_prefix', '\w+')
 
         self._tlh = self._tls = None
 
