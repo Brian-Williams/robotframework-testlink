@@ -97,5 +97,6 @@ class testlinklistener(object):
         # This is supposed to default to true by the API spec, but doesn't on some testlink versions
         # rkwargs.setdefault('guess', True)
         for result in reporter.reportgen():
-            # Listeners don't show up in the log so setting also_console to False effectively means don't log
+            # Listeners don't show up in the xml log so setting also_console to False effectively means don't log
+            # Listeners do log to ROBOT_SYSLOG_FILE in the end_test stage, however that isn't enabled by default
             robot_logger.info(result, also_console=self.also_console)
